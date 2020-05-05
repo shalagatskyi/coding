@@ -1,11 +1,8 @@
 package com.verygoodsecurity.coding.aliases
 
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 data class AliasRequest(val secret: String)
 
@@ -18,4 +15,12 @@ class AliasController(val aliasService: AliasService) {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   fun create(@RequestBody createRequest: AliasRequest) = AliasResponse(aliasService.redact(createRequest.secret))
+
+  @GetMapping("/{secret}")
+  fun get(@PathVariable("secret") secret: String): ResponseEntity<AliasResponse> {
+    val alias = aliasService.reveal(secret) ?: return ResponseEntity.notFound().build()
+
+    return ResponseEntity.ok(AliasResponse(alias))
+  }
+
 }
